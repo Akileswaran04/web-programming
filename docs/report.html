@@ -1,0 +1,690 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Study Material Portal: Project Report</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  @page { size: A4; margin: 22mm 20mm 22mm 22mm; }
+  :root { --ink:#1d1b17; --muted:#6b665a; --rule:#d8d0bf; --accent:#c8461c; --tint:#f6f2e9; }
+  body { font: 11pt/1.6 "IBM Plex Sans", Arial, sans-serif; color: var(--ink); margin: 0; }
+  h1, h2, h3 { font-family: Fraunces, Georgia, serif; line-height: 1.2; }
+  h2 { font-size: 19pt; margin: 0 0 10pt; padding-top: 2pt; break-before: page; }
+  h2 .no { color: var(--accent); margin-right: 8pt; }
+  h3 { font-size: 13pt; margin: 16pt 0 6pt; break-after: avoid; }
+  h4 { font-size: 11pt; margin: 12pt 0 4pt; break-after: avoid; }
+  p { margin: 0 0 8pt; text-align: justify; }
+  code, .mono { font-family: "IBM Plex Mono", Consolas, monospace; font-size: 9.5pt; }
+  pre { font: 8.6pt/1.45 "IBM Plex Mono", Consolas, monospace; background: var(--tint); border: 1px solid var(--rule); border-left: 3px solid var(--accent);
+        padding: 8pt 10pt; margin: 4pt 0 12pt; white-space: pre-wrap; break-inside: avoid; }
+  pre .c { color: var(--muted); }
+  .file { font: 600 9pt "IBM Plex Mono", Consolas, monospace; color: var(--accent); margin-top: 10pt; break-after: avoid; }
+  table { width: 100%; border-collapse: collapse; margin: 6pt 0 12pt; font-size: 9.8pt; break-inside: auto; }
+  th, td { border: 1px solid var(--rule); padding: 5pt 7pt; text-align: left; vertical-align: top; }
+  th { background: var(--tint); font-weight: 600; }
+  tr { break-inside: avoid; }
+  figure { margin: 10pt 0 14pt; break-inside: avoid; text-align: center; }
+  figure img { max-width: 100%; max-height: 108mm; border: 1px solid var(--rule); }
+  figure.half img { max-height: 150mm; }
+  figcaption { font-size: 9.5pt; color: var(--muted); margin-top: 4pt; }
+  ul, ol { margin: 0 0 8pt; padding-left: 18pt; }
+  li { margin-bottom: 3pt; }
+  .pass { color: #2f6b3a; font-weight: 600; }
+  .note { background: var(--tint); border: 1px solid var(--rule); padding: 8pt 10pt; font-size: 10pt; margin: 8pt 0 12pt; }
+
+  .cover { height: 250mm; display: flex; flex-direction: column; text-align: center; }
+  .cover .kind { margin-top: 60pt; font: italic 13pt Fraunces, Georgia, serif; color: var(--muted); }
+  .cover h1 { font-size: 34pt; margin: 8pt 0 4pt; }
+  .cover .sub { font-size: 12pt; color: var(--muted); }
+  .cover .team { margin: 34pt auto 0; width: 78%; }
+  .cover .team th, .cover .team td { text-align: center; font-size: 11pt; padding: 7pt; }
+  .cover .bottom { margin-top: auto; font-size: 11pt; }
+  .toc { list-style: none; padding: 0; }
+  .toc li { display: flex; border-bottom: 1px dotted var(--rule); padding: 4pt 0; }
+  .toc li span:first-child { width: 28pt; color: var(--accent); font-weight: 600; }
+  svg text { font-family: "IBM Plex Sans", Arial, sans-serif; }
+</style>
+</head>
+<body>
+
+<!-- ============ Cover: team number and members ============ -->
+<section class="cover">
+  <div class="kind">A Project Report on</div>
+  <h1>Study Material Portal</h1>
+  <div class="sub">A web platform for students to share, discover and download PDF study notes</div>
+  <table class="team">
+    <tr><th colspan="2">Team No: 14</th></tr>
+    <tr><th>Name</th><th>Register Number</th></tr>
+    <tr><td>Abinaya S</td><td>2024115032</td></tr>
+    <tr><td>Akileswaran A</td><td>2024115052</td></tr>
+  </table>
+  <div class="bottom">Source code: github.com/Akileswaran04/web-programming<br><br>October 2026</div>
+</section>
+<!-- ========================================================== -->
+
+<h2>Abstract</h2>
+<p>Students rely on notes, question banks and summaries passed between batches, but these files are usually scattered across messaging groups and personal drives where they are hard to search and easily lost. This project builds the <b>Study Material Portal</b>, a full-stack web application where registered students upload PDF study materials tagged by subject and semester, browse and search what others have shared, download files, and manage their own uploads.</p>
+<p>The system uses a <b>React 18</b> single-page frontend built with Vite, a <b>Spring Boot 3.5</b> REST backend on Java 21, and a <b>PostgreSQL 17</b> database whose schema is versioned with Flyway migrations. Uploaded files are stored on disk under server-generated names while their metadata lives in the database. Authentication uses server-side sessions with BCrypt password hashing and CSRF protection. Uploads are validated by size, declared content type and PDF magic bytes.</p>
+<p>The interface uses a paper-and-ink "library shelf" theme, with animations that give the user feedback: material cards disintegrate into particles when deleted, uploads use a drag-and-drop zone with live progress, and lists animate into place. The full workflow was verified with an automated end-to-end test (Playwright) that drives a real browser against the running stack and checks the resulting PostgreSQL rows and stored files. All 13 test scenarios passed.</p>
+
+<h2>Contents</h2>
+<ol class="toc">
+  <li><span>1</span><span>Introduction</span></li>
+  <li><span>2</span><span>Existing and Proposed System</span></li>
+  <li><span>3</span><span>Requirements Analysis</span></li>
+  <li><span>4</span><span>System Design</span></li>
+  <li><span>5</span><span>Technology Stack</span></li>
+  <li><span>6</span><span>Implementation</span></li>
+  <li><span>7</span><span>Testing</span></li>
+  <li><span>8</span><span>Results and Discussion</span></li>
+  <li><span>9</span><span>Conclusion and Future Scope</span></li>
+  <li><span></span><span>References</span></li>
+</ol>
+
+<!-- ======================= 1 ======================= -->
+<h2><span class="no">1</span>Introduction</h2>
+<h3>1.1 Project Overview</h3>
+<p>The Study Material Portal is a web application that acts as a shared, searchable shelf of PDF study material for the students of an institution. A student can create an account, upload a PDF (for example scanned notes, a solved question paper or a formula sheet) and tag it with a subject. Every visitor can browse the shelf, filter it by subject and search it, and logged-in students can download any file. Each student has a "My shelf" page listing their own uploads, which they can delete.</p>
+<p>The application has three parts: a React frontend that runs in the browser, a Spring Boot REST API, and a PostgreSQL database. PDF files are stored on the server's disk, and the database records who uploaded which file, for which subject, and when.</p>
+<h3>1.2 Problem Statement</h3>
+<p>Study material today circulates through chat groups and personal cloud folders. There, it is buried under conversation, cannot be filtered by subject, and disappears when a group is archived or a senior graduates. There is no central, searchable, access-controlled place where students of an institution can share PDF study material organised by subject and semester, while keeping ownership of what they upload and protecting the server from unsafe files.</p>
+<h3>1.3 Objectives</h3>
+<ol>
+  <li>Allow students to register and log in securely.</li>
+  <li>Allow logged-in students to upload PDF material with a title, description and subject.</li>
+  <li>Let anyone browse materials, filter by subject and search by text; let logged-in users download them.</li>
+  <li>Let users view and delete their own uploads; let administrators remove any material.</li>
+  <li>Store all data persistently in PostgreSQL, with integrity rules enforced by the database.</li>
+  <li>Provide a responsive, animated interface that works on desktop and mobile.</li>
+  <li>Verify the complete flow with automated end-to-end tests.</li>
+</ol>
+<h3>1.4 Scope</h3>
+<p>The portal targets a single institution. It supports PDF files up to 10 MB, a list of subjects maintained in the database, and two roles: <code>STUDENT</code> and <code>ADMIN</code>. Content moderation, ratings, comments and in-browser PDF preview are outside the current scope and are listed as future enhancements.</p>
+
+<!-- ======================= 2 ======================= -->
+<h2><span class="no">2</span>Existing and Proposed System</h2>
+<h3>2.1 Existing System</h3>
+<p>In practice, study material is shared in three informal ways:</p>
+<ul>
+  <li><b>Messaging groups</b> (WhatsApp, Telegram): a student posts a PDF into a class group, and it scrolls away under later messages.</li>
+  <li><b>Personal cloud folders</b> (Google Drive links): one student owns a folder and shares the link, which works only while that student maintains it.</li>
+  <li><b>Direct transfer</b> (pen drives, email, Bluetooth): files are passed one person at a time.</li>
+</ul>
+<h3>2.2 Limitations of the Existing System</h3>
+<table>
+  <tr><th>Limitation</th><th>Effect on students</th></tr>
+  <tr><td>No organisation by subject or semester</td><td>Finding the right file means scrolling through hundreds of messages.</td></tr>
+  <tr><td>No search</td><td>File names like <code>IMG_2041.pdf</code> or <code>notes final(2).pdf</code> cannot be found by topic.</td></tr>
+  <tr><td>Material depends on individuals</td><td>When a group is archived, a link expires or a senior graduates, the files are gone.</td></tr>
+  <tr><td>No ownership control</td><td>Anyone in a shared folder can delete or overwrite others' files; in a chat, files cannot be withdrawn at all.</td></tr>
+  <tr><td>No validation</td><td>Any file type can be shared, including mislabelled or harmful files.</td></tr>
+  <tr><td>Repeated requests</td><td>Every batch asks for the same notes again before exams.</td></tr>
+</table>
+<h3>2.3 Proposed System</h3>
+<p>The proposed Study Material Portal replaces these channels with one web application. Every upload is tagged with a subject (and therefore a department and semester). It appears on a shared shelf that can be filtered and searched, and is stored on a server instead of on someone's phone. Accounts identify who uploaded what. Only the uploader (or an administrator) can delete a file. Every upload is checked to be a genuine PDF under 10 MB.</p>
+<h3>2.4 How the Proposed System Improves on the Existing One</h3>
+<table>
+  <tr><th>Aspect</th><th>Existing system</th><th>Proposed system</th></tr>
+  <tr><td>Organisation</td><td>Mixed into chat history</td><td>Every file tagged with a subject; filter tags per subject</td></tr>
+  <tr><td>Finding material</td><td>Manual scrolling</td><td>Instant search over title, description and uploader</td></tr>
+  <tr><td>Persistence</td><td>Lost when groups or links die</td><td>Stored centrally in PostgreSQL and on server disk</td></tr>
+  <tr><td>Ownership</td><td>None</td><td>Uploader recorded; only owner or admin can delete</td></tr>
+  <tr><td>Safety</td><td>Any file type</td><td>PDF only, 10 MB limit, file content verified</td></tr>
+  <tr><td>Access</td><td>Must be in the right group</td><td>Anyone can browse; students log in to download and upload</td></tr>
+  <tr><td>Devices</td><td>Phone-centric</td><td>Responsive web app for desktop and mobile</td></tr>
+</table>
+
+<!-- ======================= 3 ======================= -->
+<h2><span class="no">3</span>Requirements Analysis</h2>
+<h3>3.1 Functional Requirements</h3>
+<table>
+  <tr><th>ID</th><th>Requirement</th><th>Actor</th></tr>
+  <tr><td>FR1</td><td>The system shall let a visitor register with name, email and a password of at least 8 characters, and reject an email that is already registered.</td><td>Guest</td></tr>
+  <tr><td>FR2</td><td>The system shall let a registered user log in and log out.</td><td>Student</td></tr>
+  <tr><td>FR3</td><td>The system shall list all subjects with department and semester.</td><td>Guest</td></tr>
+  <tr><td>FR4</td><td>The system shall list materials newest first and filter them by subject.</td><td>Guest</td></tr>
+  <tr><td>FR5</td><td>The system shall let users search the listed materials by title, description and uploader name.</td><td>Guest</td></tr>
+  <tr><td>FR6</td><td>The system shall let a logged-in user upload a PDF with title, optional description and subject.</td><td>Student</td></tr>
+  <tr><td>FR7</td><td>The system shall reject uploads that are not PDF or exceed 10 MB.</td><td>System</td></tr>
+  <tr><td>FR8</td><td>The system shall let a logged-in user download any material with its original file name.</td><td>Student</td></tr>
+  <tr><td>FR9</td><td>The system shall show a logged-in user a list of their own uploads ("My shelf").</td><td>Student</td></tr>
+  <tr><td>FR10</td><td>The system shall let users delete their own uploads, and administrators delete any upload, removing both the record and the file.</td><td>Student, Admin</td></tr>
+  <tr><td>FR11</td><td>The system shall redirect anonymous users who open Upload or My shelf to the login page.</td><td>System</td></tr>
+</table>
+<h3>3.2 Non-Functional Requirements</h3>
+<table>
+  <tr><th>Category</th><th>Requirement</th><th>How it is met</th></tr>
+  <tr><td>Security</td><td>Passwords must never be stored in plain text; sessions and forms must be protected.</td><td>BCrypt hashing, HttpOnly session cookie, session-id rotation at login, CSRF tokens, PDF magic-byte check, random stored file names.</td></tr>
+  <tr><td>Data integrity</td><td>Invalid data must not reach the database.</td><td>UNIQUE, CHECK and FOREIGN KEY constraints in PostgreSQL; bean validation on requests; file deleted again if the insert fails.</td></tr>
+  <tr><td>Performance</td><td>Lists must load quickly as data grows.</td><td>Indexes on subject, uploader and creation time; page size limited to 100 rows.</td></tr>
+  <tr><td>Usability</td><td>Every action gives visible feedback.</td><td>Progress bar, toasts, inline confirmation, error messages, loading placeholders.</td></tr>
+  <tr><td>Responsiveness</td><td>Usable on phones.</td><td>Fluid layout tested at 390 px width with no horizontal scrolling.</td></tr>
+  <tr><td>Accessibility</td><td>Respect user settings and assistive technology.</td><td>Animations disabled under "reduce motion"; labelled form fields; ARIA roles on filter tabs and toasts.</td></tr>
+  <tr><td>Maintainability</td><td>Schema changes must be repeatable.</td><td>Versioned Flyway migrations; Hibernate in <code>validate</code> mode.</td></tr>
+  <tr><td>Portability</td><td>Runs on any OS with Java and Node.</td><td>Configuration through environment variables (<code>DB_PASSWORD</code>, <code>UPLOAD_DIR</code>).</td></tr>
+</table>
+<h3>3.3 Hardware and Software Requirements</h3>
+<table>
+  <tr><th>Resource</th><th>Minimum</th></tr>
+  <tr><td>Processor</td><td>Dual-core 2 GHz or better</td></tr>
+  <tr><td>Memory</td><td>4 GB RAM (8 GB recommended for development)</td></tr>
+  <tr><td>Storage</td><td>2 GB free, plus space for uploaded PDFs</td></tr>
+  <tr><td>Operating system</td><td>Windows 10/11, Linux or macOS</td></tr>
+  <tr><td>Software</td><td>JDK 21, Maven 3.9+, Node.js 20+, PostgreSQL 17, a modern web browser</td></tr>
+</table>
+
+<!-- ======================= 4 ======================= -->
+<h2><span class="no">4</span>System Design</h2>
+<h3>4.1 Architecture Diagram</h3>
+<p>The application follows a three-tier architecture. The React single-page application runs in the browser and talks to the backend only through a JSON REST API under <code>/api</code>. During development the Vite dev server forwards <code>/api</code> to Spring Boot, so the browser sees a single origin and no CORS configuration is required. The backend is layered into controllers, services, repositories and a storage service. PostgreSQL holds all structured data, and PDF bytes are written to a directory on disk.</p>
+<figure>
+<svg viewBox="0 0 640 250" width="100%" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#1d1b17"/></marker></defs>
+  <g font-size="12" fill="#1d1b17">
+    <rect x="10" y="70" width="140" height="110" rx="8" fill="#f6f2e9" stroke="#1d1b17"/>
+    <text x="80" y="95" text-anchor="middle" font-weight="600">Browser</text>
+    <text x="80" y="118" text-anchor="middle">React 18 SPA</text>
+    <text x="80" y="136" text-anchor="middle">React Router</text>
+    <text x="80" y="154" text-anchor="middle">Axios (CSRF header)</text>
+    <rect x="230" y="20" width="220" height="210" rx="8" fill="#fff" stroke="#1d1b17"/>
+    <text x="340" y="42" text-anchor="middle" font-weight="600">Spring Boot 3.5 (Java 21)</text>
+    <rect x="250" y="55" width="180" height="30" rx="4" fill="#fbe9e2" stroke="#c8461c"/><text x="340" y="75" text-anchor="middle">Spring Security filter chain</text>
+    <rect x="250" y="95" width="180" height="30" rx="4" fill="#f6f2e9" stroke="#1d1b17"/><text x="340" y="115" text-anchor="middle">REST Controllers</text>
+    <rect x="250" y="135" width="180" height="30" rx="4" fill="#f6f2e9" stroke="#1d1b17"/><text x="340" y="155" text-anchor="middle">Services (validation, rules)</text>
+    <rect x="250" y="175" width="85" height="40" rx="4" fill="#f6f2e9" stroke="#1d1b17"/><text x="292" y="199" text-anchor="middle">JPA Repos</text>
+    <rect x="345" y="175" width="85" height="40" rx="4" fill="#f6f2e9" stroke="#1d1b17"/><text x="387" y="199" text-anchor="middle">File Storage</text>
+    <rect x="510" y="40" width="120" height="80" rx="8" fill="#e6eef5" stroke="#3f5f7f"/>
+    <text x="570" y="70" text-anchor="middle" font-weight="600">PostgreSQL 17</text>
+    <text x="570" y="90" text-anchor="middle">Flyway schema</text>
+    <rect x="510" y="150" width="120" height="70" rx="8" fill="#eef3ec" stroke="#5b7a5a"/>
+    <text x="570" y="180" text-anchor="middle" font-weight="600">uploads/</text>
+    <text x="570" y="198" text-anchor="middle">UUID.pdf files</text>
+    <line x1="150" y1="115" x2="228" y2="115" stroke="#1d1b17" marker-end="url(#a)"/>
+    <line x1="230" y1="140" x2="152" y2="140" stroke="#1d1b17" marker-end="url(#a)"/>
+    <text x="190" y="108" text-anchor="middle" font-size="10">JSON / multipart</text>
+    <text x="190" y="156" text-anchor="middle" font-size="10">session cookie</text>
+    <path d="M292 175 V128 H470 V80 H508" fill="none" stroke="#3f5f7f" marker-end="url(#a)"/>
+    <text x="482" y="74" font-size="10">JDBC</text>
+    <line x1="430" y1="195" x2="508" y2="190" stroke="#5b7a5a" marker-end="url(#a)"/>
+  </g>
+</svg>
+<figcaption>Figure 4.1: System architecture</figcaption>
+</figure>
+
+<h3>4.2 Use-Case Diagram</h3>
+<p>There are three actors. A <b>Guest</b> (not logged in) can browse, filter and search materials, register and log in. A <b>Student</b> can do everything a Guest can, and can also upload, download, view their own uploads and delete them. An <b>Admin</b> can do everything a Student can, and can also delete any material.</p>
+<figure>
+<svg viewBox="0 0 640 410" width="100%" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="gen" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="11" markerHeight="11" orient="auto"><path d="M0 0L12 6L0 12z" fill="#fff" stroke="#1d1b17"/></marker></defs>
+  <g font-size="11" fill="#1d1b17" stroke-width="1.2">
+    <rect x="170" y="10" width="320" height="392" rx="10" fill="#fdfbf6" stroke="#1d1b17"/>
+    <text x="330" y="28" text-anchor="middle" font-weight="600">Study Material Portal</text>
+    <g fill="#f6f2e9" stroke="#1d1b17">
+      <ellipse cx="330" cy="58" rx="110" ry="15"/><ellipse cx="330" cy="96" rx="110" ry="15"/><ellipse cx="330" cy="134" rx="110" ry="15"/>
+      <ellipse cx="330" cy="172" rx="110" ry="15"/><ellipse cx="330" cy="214" rx="110" ry="15"/><ellipse cx="330" cy="252" rx="110" ry="15"/>
+      <ellipse cx="330" cy="290" rx="110" ry="15"/><ellipse cx="330" cy="328" rx="110" ry="15"/>
+      <ellipse cx="330" cy="374" rx="110" ry="15" fill="#fbe9e2" stroke="#c8461c"/>
+    </g>
+    <g text-anchor="middle">
+      <text x="330" y="62">Browse materials</text><text x="330" y="100">Filter by subject / search</text>
+      <text x="330" y="138">Register</text><text x="330" y="176">Log in / Log out</text>
+      <text x="330" y="218">Upload PDF</text><text x="330" y="256">Download PDF</text>
+      <text x="330" y="294">View "My shelf"</text><text x="330" y="332">Delete own material</text>
+      <text x="330" y="378">Delete any material</text>
+    </g>
+    <g stroke="#1d1b17" fill="none">
+      <circle cx="60" cy="88" r="10"/><path d="M60 98v26M44 108h32M60 124l-12 18M60 124l12 18"/>
+      <circle cx="60" cy="250" r="10"/><path d="M60 260v26M44 270h32M60 286l-12 18M60 286l12 18"/>
+      <circle cx="590" cy="330" r="10"/><path d="M590 340v26M574 350h32M590 366l-12 18M590 366l12 18"/>
+    </g>
+    <text x="60" y="160" text-anchor="middle" font-weight="600">Guest</text>
+    <text x="60" y="322" text-anchor="middle" font-weight="600">Student</text>
+    <text x="590" y="402" text-anchor="middle" font-weight="600">Admin</text>
+    <g stroke="#1d1b17">
+      <line x1="76" y1="105" x2="220" y2="60"/><line x1="76" y1="108" x2="220" y2="96"/><line x1="76" y1="111" x2="220" y2="132"/><line x1="76" y1="114" x2="220" y2="170"/>
+      <line x1="76" y1="268" x2="220" y2="216"/><line x1="76" y1="270" x2="220" y2="252"/><line x1="76" y1="272" x2="220" y2="288"/><line x1="76" y1="275" x2="220" y2="326"/>
+      <line x1="574" y1="352" x2="440" y2="372"/>
+    </g>
+    <line x1="60" y1="236" x2="60" y2="170" stroke="#1d1b17" marker-end="url(#gen)"/>
+    <text x="545" y="290" text-anchor="middle" font-size="10" fill="#6b665a">Admin also has all</text>
+    <text x="545" y="303" text-anchor="middle" font-size="10" fill="#6b665a">Student use cases</text>
+  </g>
+</svg>
+<figcaption>Figure 4.2: Use-case diagram (the hollow arrow means "Student is a Guest", i.e. inherits its use cases)</figcaption>
+</figure>
+
+<h3>4.3 Data Flow Diagram</h3>
+<p>The Level-0 (context) DFD shows the system as one process exchanging data with its users and its two data stores.</p>
+<figure>
+<svg viewBox="0 0 640 220" width="100%" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="d" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#1d1b17"/></marker></defs>
+  <g font-size="11" fill="#1d1b17">
+    <rect x="10" y="80" width="110" height="56" fill="#f6f2e9" stroke="#1d1b17"/><text x="65" y="105" text-anchor="middle" font-weight="600">Student /</text><text x="65" y="121" text-anchor="middle" font-weight="600">Guest</text>
+    <circle cx="320" cy="108" r="70" fill="#fbe9e2" stroke="#c8461c"/>
+    <text x="320" y="100" text-anchor="middle" font-weight="600">0</text><text x="320" y="116" text-anchor="middle" font-weight="600">Study Material</text><text x="320" y="131" text-anchor="middle" font-weight="600">Portal</text>
+    <path d="M500 40h130M500 72h130" stroke="#1d1b17"/><text x="512" y="61">D1 PostgreSQL</text>
+    <path d="M500 150h130M500 182h130" stroke="#1d1b17"/><text x="512" y="171">D2 uploads/ (PDFs)</text>
+    <line x1="120" y1="92" x2="248" y2="92" stroke="#1d1b17" marker-end="url(#d)"/>
+    <text x="184" y="70" text-anchor="middle" font-size="9.5">credentials, PDF + details,</text><text x="184" y="83" text-anchor="middle" font-size="9.5">search / filter, delete request</text>
+    <line x1="250" y1="126" x2="122" y2="126" stroke="#1d1b17" marker-end="url(#d)"/>
+    <text x="184" y="143" text-anchor="middle" font-size="9.5">materials list, PDF file,</text><text x="184" y="156" text-anchor="middle" font-size="9.5">status / error messages</text>
+    <line x1="384" y1="80" x2="498" y2="58" stroke="#1d1b17" marker-end="url(#d)"/><line x1="498" y1="66" x2="388" y2="92" stroke="#1d1b17" marker-end="url(#d)"/>
+    <text x="440" y="50" text-anchor="middle" font-size="9.5">users, materials</text>
+    <line x1="384" y1="136" x2="498" y2="160" stroke="#1d1b17" marker-end="url(#d)"/><line x1="498" y1="172" x2="384" y2="150" stroke="#1d1b17" marker-end="url(#d)"/>
+    <text x="440" y="190" text-anchor="middle" font-size="9.5">PDF bytes</text>
+  </g>
+</svg>
+<figcaption>Figure 4.3: Level-0 data flow diagram</figcaption>
+</figure>
+
+<h3>4.4 Upload Workflow</h3>
+<p>Uploading is the most important workflow, because it passes through every layer and every safety check. The flowchart shows each decision point and what the user sees when a check fails.</p>
+<figure>
+<svg viewBox="0 0 640 470" width="100%" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="w" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#1d1b17"/></marker></defs>
+  <g font-size="10.5" fill="#1d1b17" text-anchor="middle">
+    <rect x="200" y="6" width="160" height="28" rx="14" fill="#1d1b17"/><text x="280" y="24" fill="#fff">User drops a file</text>
+    <polygon points="280,48 380,74 280,100 180,74" fill="#f6f2e9" stroke="#1d1b17"/><text x="280" y="72">PDF and</text><text x="280" y="85">≤ 10 MB? (browser)</text>
+    <rect x="200" y="114" width="160" height="28" fill="#fff" stroke="#1d1b17"/><text x="280" y="132">POST /api/materials</text>
+    <polygon points="280,156 380,182 280,208 180,182" fill="#f6f2e9" stroke="#1d1b17"/><text x="280" y="180">Logged in and</text><text x="280" y="193">CSRF token valid?</text>
+    <polygon points="280,222 380,248 280,274 180,248" fill="#f6f2e9" stroke="#1d1b17"/><text x="280" y="246">Starts with %PDF-</text><text x="280" y="259">and subject exists?</text>
+    <rect x="190" y="288" width="180" height="28" fill="#fff" stroke="#1d1b17"/><text x="280" y="306">Save file as uploads/&lt;UUID&gt;.pdf</text>
+    <polygon points="280,330 380,356 280,382 180,356" fill="#f6f2e9" stroke="#1d1b17"/><text x="280" y="354">Insert row in</text><text x="280" y="367">study_materials OK?</text>
+    <rect x="180" y="396" width="200" height="28" fill="#eef3ec" stroke="#5b7a5a"/><text x="280" y="414">201 Created → card appears on My shelf</text>
+    <rect x="215" y="436" width="130" height="28" rx="14" fill="#1d1b17"/><text x="280" y="454" fill="#fff">End</text>
+    <g stroke="#1d1b17" fill="none">
+      <line x1="280" y1="34" x2="280" y2="46" marker-end="url(#w)"/><line x1="280" y1="100" x2="280" y2="112" marker-end="url(#w)"/>
+      <line x1="280" y1="142" x2="280" y2="154" marker-end="url(#w)"/><line x1="280" y1="208" x2="280" y2="220" marker-end="url(#w)"/>
+      <line x1="280" y1="274" x2="280" y2="286" marker-end="url(#w)"/><line x1="280" y1="316" x2="280" y2="328" marker-end="url(#w)"/>
+      <line x1="280" y1="382" x2="280" y2="394" marker-end="url(#w)"/><line x1="280" y1="424" x2="280" y2="434" marker-end="url(#w)"/>
+      <line x1="380" y1="74" x2="438" y2="74" marker-end="url(#w)"/><line x1="380" y1="182" x2="438" y2="182" marker-end="url(#w)"/>
+      <line x1="380" y1="248" x2="438" y2="248" marker-end="url(#w)"/><line x1="380" y1="356" x2="438" y2="356" marker-end="url(#w)"/>
+    </g>
+    <g fill="#c8461c" font-size="10"><text x="400" y="68">No</text><text x="400" y="176">No</text><text x="400" y="242">No</text><text x="400" y="350">No</text></g>
+    <g fill="#5b7a5a" font-size="10"><text x="292" y="110" text-anchor="start">Yes</text><text x="292" y="218" text-anchor="start">Yes</text><text x="292" y="284" text-anchor="start">Yes</text><text x="292" y="392" text-anchor="start">Yes</text></g>
+    <g fill="#fbe9e2" stroke="#c8461c">
+      <rect x="440" y="60" width="190" height="28"/><rect x="440" y="168" width="190" height="28"/>
+      <rect x="440" y="234" width="190" height="28"/><rect x="440" y="342" width="190" height="28"/>
+    </g>
+    <text x="535" y="78">Show error, nothing sent</text><text x="535" y="186">401 / 403 → redirect to login</text>
+    <text x="535" y="252">400 "Only PDF files are allowed"</text><text x="535" y="360">Delete saved file, return error</text>
+  </g>
+</svg>
+<figcaption>Figure 4.4: Upload workflow</figcaption>
+</figure>
+
+<h3>4.5 ER Diagram</h3>
+<figure>
+<svg viewBox="0 0 640 230" width="100%" xmlns="http://www.w3.org/2000/svg">
+  <g font-size="11" fill="#1d1b17">
+    <rect x="10" y="20" width="170" height="150" fill="#fff" stroke="#1d1b17"/><rect x="10" y="20" width="170" height="24" fill="#1d1b17"/>
+    <text x="95" y="37" text-anchor="middle" fill="#fff" font-weight="600">app_users</text>
+    <text x="18" y="62">PK id BIGINT</text><text x="18" y="80">name VARCHAR(100)</text><text x="18" y="98">email VARCHAR(255) UQ</text>
+    <text x="18" y="116">password_hash VARCHAR</text><text x="18" y="134">role STUDENT|ADMIN</text><text x="18" y="152">created_at TIMESTAMPTZ</text>
+    <rect x="235" y="10" width="190" height="210" fill="#fff" stroke="#1d1b17"/><rect x="235" y="10" width="190" height="24" fill="#c8461c"/>
+    <text x="330" y="27" text-anchor="middle" fill="#fff" font-weight="600">study_materials</text>
+    <text x="243" y="52">PK id BIGINT</text><text x="243" y="69">title VARCHAR(200)</text><text x="243" y="86">description TEXT</text>
+    <text x="243" y="103">original_filename</text><text x="243" y="120">stored_filename UQ</text><text x="243" y="137">file_path, content_type</text>
+    <text x="243" y="154">file_size BIGINT &gt; 0</text><text x="243" y="171">FK uploaded_by</text><text x="243" y="188">FK subject_id</text><text x="243" y="205">created_at TIMESTAMPTZ</text>
+    <rect x="470" y="40" width="160" height="125" fill="#fff" stroke="#1d1b17"/><rect x="470" y="40" width="160" height="24" fill="#1d1b17"/>
+    <text x="550" y="57" text-anchor="middle" fill="#fff" font-weight="600">subjects</text>
+    <text x="478" y="82">PK id BIGINT</text><text x="478" y="100">name VARCHAR(150)</text><text x="478" y="118">department</text>
+    <text x="478" y="136">semester 1..12</text><text x="478" y="154">UQ(name,dept,sem)</text>
+    <line x1="180" y1="95" x2="235" y2="167" stroke="#1d1b17"/><text x="190" y="88">1</text><text x="220" y="160">N</text>
+    <line x1="425" y1="184" x2="470" y2="100" stroke="#1d1b17"/><text x="430" y="178">N</text><text x="458" y="98">1</text>
+  </g>
+</svg>
+<figcaption>Figure 4.5: Entity-relationship diagram. One user uploads many materials; one subject has many materials.</figcaption>
+</figure>
+
+<h3>4.6 Database Schema</h3>
+<p>The schema is created by Flyway migration <code>V1__create_initial_schema.sql</code> and seeded by <code>V2__seed_subjects.sql</code> (both in <code>backend/src/main/resources/db/</code>). Hibernate runs with <code>ddl-auto=validate</code>, so the application refuses to start if the Java entities and the real tables drift apart.</p>
+<h4>Table: app_users</h4>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Constraint</th><th>Description</th></tr>
+  <tr><td>id</td><td>BIGINT</td><td>PK, identity</td><td>User id</td></tr>
+  <tr><td>name</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>Display name</td></tr>
+  <tr><td>email</td><td>VARCHAR(255)</td><td>NOT NULL, UNIQUE</td><td>Login name, stored lower-case</td></tr>
+  <tr><td>password_hash</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>BCrypt hash</td></tr>
+  <tr><td>role</td><td>VARCHAR(20)</td><td>CHECK IN ('STUDENT','ADMIN')</td><td>Default STUDENT</td></tr>
+  <tr><td>created_at</td><td>TIMESTAMPTZ</td><td>DEFAULT now</td><td>Registration time</td></tr>
+</table>
+<h4>Table: subjects</h4>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Constraint</th><th>Description</th></tr>
+  <tr><td>id</td><td>BIGINT</td><td>PK, identity</td><td>Subject id</td></tr>
+  <tr><td>name</td><td>VARCHAR(150)</td><td>NOT NULL</td><td>e.g. Database Management Systems</td></tr>
+  <tr><td>department</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>e.g. Computer Science</td></tr>
+  <tr><td>semester</td><td>SMALLINT</td><td>CHECK 1–12</td><td>Semester taught</td></tr>
+  <tr><td colspan="4">UNIQUE (name, department, semester)</td></tr>
+</table>
+<h4>Table: study_materials</h4>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Constraint</th><th>Description</th></tr>
+  <tr><td>id</td><td>BIGINT</td><td>PK, identity</td><td>Material id</td></tr>
+  <tr><td>title</td><td>VARCHAR(200)</td><td>NOT NULL</td><td>Display title</td></tr>
+  <tr><td>description</td><td>TEXT</td><td></td><td>Optional summary</td></tr>
+  <tr><td>original_filename</td><td>VARCHAR(255)</td><td>NOT NULL</td><td>Name used on download</td></tr>
+  <tr><td>stored_filename</td><td>VARCHAR(255)</td><td>NOT NULL, UNIQUE</td><td>Random UUID name on disk</td></tr>
+  <tr><td>file_path</td><td>VARCHAR(1000)</td><td>NOT NULL</td><td>Path at upload time</td></tr>
+  <tr><td>content_type</td><td>VARCHAR(100)</td><td>NOT NULL</td><td>Always <code>application/pdf</code></td></tr>
+  <tr><td>file_size</td><td>BIGINT</td><td>CHECK &gt; 0</td><td>Bytes</td></tr>
+  <tr><td>uploaded_by</td><td>BIGINT</td><td>FK → app_users, ON DELETE RESTRICT</td><td>Owner</td></tr>
+  <tr><td>subject_id</td><td>BIGINT</td><td>FK → subjects, ON DELETE RESTRICT</td><td>Subject</td></tr>
+  <tr><td>created_at</td><td>TIMESTAMPTZ</td><td>DEFAULT now</td><td>Upload time</td></tr>
+</table>
+<p>Indexes on <code>subject_id</code>, <code>uploaded_by</code> and <code>created_at DESC</code> support the three main queries: filter by subject, list one user's uploads, and show newest first.</p>
+
+<!-- ======================= 5 ======================= -->
+<h2><span class="no">5</span>Technology Stack</h2>
+<table>
+  <tr><th>Layer</th><th>Technology</th><th>Version</th><th>Used for</th></tr>
+  <tr><td rowspan="6">Frontend</td><td>HTML5</td><td>–</td><td>Single page <code>index.html</code> that React mounts into; semantic elements (<code>header</code>, <code>nav</code>, <code>main</code>, <code>article</code>, <code>form</code>)</td></tr>
+  <tr><td>CSS3</td><td>–</td><td>All styling in <code>index.css</code>: custom properties for colours, Flexbox and Grid layout, <code>@keyframes</code> animations, media queries for mobile, <code>prefers-reduced-motion</code></td></tr>
+  <tr><td>JavaScript (ES modules)</td><td>–</td><td>Application logic; Canvas 2D API for the particle effect; Web Animations API</td></tr>
+  <tr><td>React</td><td>18.3.1</td><td>Component-based UI, state with hooks (<code>useState</code>, <code>useEffect</code>, <code>useRef</code>), Context for login state</td></tr>
+  <tr><td>React Router</td><td>6.30.6</td><td>Client-side routes and protected pages</td></tr>
+  <tr><td>Axios</td><td>1.20.0</td><td>HTTP client with upload progress and automatic CSRF header</td></tr>
+  <tr><td rowspan="5">Backend</td><td>Java</td><td>21 (Temurin)</td><td>Backend language</td></tr>
+  <tr><td>Spring Boot</td><td>3.5.16</td><td>Web framework with embedded Tomcat</td></tr>
+  <tr><td>Spring Security</td><td>via Spring Boot</td><td>Sessions, BCrypt, CSRF, URL access rules</td></tr>
+  <tr><td>Spring Data JPA / Hibernate</td><td>via Spring Boot</td><td>Mapping Java entities to tables, generated queries</td></tr>
+  <tr><td>Bean Validation</td><td>via Spring Boot</td><td><code>@Email</code>, <code>@Size</code>, <code>@NotBlank</code> on request bodies</td></tr>
+  <tr><td rowspan="2">Database</td><td>PostgreSQL</td><td>17</td><td>Relational data store with constraints and indexes</td></tr>
+  <tr><td>Flyway</td><td>via Spring Boot</td><td>Versioned SQL migrations</td></tr>
+  <tr><td rowspan="7">Tools</td><td>Vite</td><td>6.4.4</td><td>Dev server with <code>/api</code> proxy, production build</td></tr>
+  <tr><td>Maven</td><td>3.9.9</td><td>Backend build and dependency management</td></tr>
+  <tr><td>Node.js / npm</td><td>24 / 11</td><td>Frontend tooling</td></tr>
+  <tr><td>Playwright (Python)</td><td>1.62</td><td>Automated end-to-end browser tests</td></tr>
+  <tr><td>psql</td><td>17</td><td>Inspecting and verifying database contents</td></tr>
+  <tr><td>Visual Studio Code</td><td>–</td><td>Code editor</td></tr>
+  <tr><td>Git and GitHub</td><td>2.52</td><td>Version control and source hosting</td></tr>
+</table>
+<h3>5.1 Why These Technologies</h3>
+<ul>
+  <li><b>React</b> keeps each screen as a small component that re-renders when its state changes, which suits a UI with filters, live search and animated lists.</li>
+  <li><b>Spring Boot</b> provides security, validation, database access and file upload handling out of the box, so the project code focuses on the application's own rules.</li>
+  <li><b>PostgreSQL</b> enforces integrity rules (unique emails, valid roles, foreign keys) in the database itself, so bad data is rejected even if application code has a bug.</li>
+  <li><b>Plain CSS</b> instead of a UI framework kept the design distinctive and the bundle small; all animations are CSS or a single canvas, with no animation library.</li>
+</ul>
+
+<!-- ======================= 6 ======================= -->
+<h2><span class="no">6</span>Implementation</h2>
+<h3>6.1 Project Structure</h3>
+<pre>web_project/
+├── backend/                        Spring Boot application
+│   ├── pom.xml
+│   └── src/main/
+│       ├── java/portal/            all 15 backend classes in one package
+│       └── resources/
+│           ├── application.properties
+│           └── db/                 V1__create_initial_schema.sql, V2__seed_subjects.sql
+├── frontend/                       React application
+│   ├── index.html, vite.config.js, package.json
+│   └── src/
+│       ├── main.jsx, App.jsx       entry point and routes
+│       ├── api.js, auth.jsx        HTTP client and login state
+│       ├── MaterialCard.jsx        one material card (download / delete)
+│       ├── effects.jsx             particle animation and toasts
+│       ├── index.css               all styles and CSS animations
+│       └── pages/                  Home, Browse, Upload, My shelf, Login, Register
+├── e2e_test.py                     end-to-end test
+└── docs/                           this report, screenshots</pre>
+
+<h3>6.2 Modules</h3>
+<table>
+  <tr><th>Module</th><th>Responsibility</th><th>Main files</th></tr>
+  <tr><td>Authentication</td><td>Register, log in, log out, current user; session creation with session-fixation protection</td><td><code>AuthController</code>, <code>SecurityConfig</code>, <code>auth.jsx</code>, <code>LoginPage</code>, <code>RegisterPage</code></td></tr>
+  <tr><td>Subjects</td><td>List subjects ordered by department and semester</td><td><code>SubjectController</code>, <code>SubjectRepository</code></td></tr>
+  <tr><td>Materials</td><td>Upload, list with subject filter and paging, download, delete with ownership checks</td><td><code>MaterialController</code>, <code>MaterialService</code>, <code>MaterialRepository</code></td></tr>
+  <tr><td>File storage</td><td>Save files under random UUID names, stream them back, delete them</td><td><code>LocalFileStorageService</code></td></tr>
+  <tr><td>Error handling</td><td>Turn exceptions into consistent <code>{"error": "..."}</code> JSON responses</td><td><code>GlobalExceptionHandler</code></td></tr>
+  <tr><td>User interface</td><td>Pages, cards, animations, notifications</td><td><code>pages/*</code>, <code>MaterialCard.jsx</code>, <code>effects.jsx</code>, <code>index.css</code></td></tr>
+</table>
+
+<h3>6.3 Features</h3>
+<h4>Registration and login</h4>
+<p>The registration form has a live password-strength meter and requires at least 8 characters. Emails are stored lower-case and must be unique (HTTP 409 otherwise). After registering, the user is logged in automatically. A wrong password shakes the login form and shows a clear message.</p>
+<figure><img src="screenshots/02_register.png"><figcaption>Figure 6.1: Registration page</figcaption></figure>
+<h4>Uploading a PDF</h4>
+<p>The upload page has a drag-and-drop zone with an animated dashed border. The title is pre-filled from the file name. Non-PDF and oversized files are rejected before anything is sent, and a progress bar shows the upload as it happens.</p>
+<figure><img src="screenshots/03_upload.png"><figcaption>Figure 6.2: Upload page with a PDF selected</figcaption></figure>
+<h4>Browsing, filtering and searching</h4>
+<p>The Browse page shows a tag for each subject. The selected subject is kept in the URL (<code>?subject=2</code>), so a filtered view can be bookmarked or shared. The search box filters by title, description and uploader as the user types.</p>
+<figure><img src="screenshots/05_browse.png"><figcaption>Figure 6.3: Browse page filtered to one subject</figcaption></figure>
+<h4>Deleting with confirmation and particle animation</h4>
+<p>Delete is shown only on the user's own cards. Clicking it asks "Delete for good?" inside the card. After the server confirms the delete, the card breaks apart into particles from left to right and the gap in the list closes smoothly.</p>
+<figure><img src="screenshots/06_delete_confirm.png"><figcaption>Figure 6.4: Inline delete confirmation</figcaption></figure>
+<figure><img src="screenshots/07_delete_particles.png"><figcaption>Figure 6.5: Card disintegrating into particles after delete</figcaption></figure>
+
+<h3>6.4 Important Code Snippets</h3>
+<h4>Checking that an upload is really a PDF</h4>
+<p>The declared content type is set by the client and cannot be trusted alone, so the server also reads the first five bytes of the file, which must be <code>%PDF-</code>.</p>
+<div class="file">backend/src/main/java/portal/MaterialService.java</div>
+<pre>private static boolean isPdf(MultipartFile file) {
+    if (!"application/pdf".equalsIgnoreCase(file.getContentType())) return false;
+    try (InputStream in = file.getInputStream()) {
+        return new String(in.readNBytes(5), StandardCharsets.US_ASCII).equals("%PDF-");
+    } catch (IOException e) {
+        return false;
+    }
+}</pre>
+<h4>Saving the file and the database row together</h4>
+<p>The file is written first, then the row is inserted. If the insert fails, the file is deleted again so the disk never holds a file the database doesn't know about.</p>
+<div class="file">backend/src/main/java/portal/MaterialService.java: upload()</div>
+<pre>String stored;
+try {
+    stored = storage.store(file);
+} catch (IOException e) {
+    throw status(HttpStatus.INTERNAL_SERVER_ERROR, "Could not save file");
+}
+try {
+    String original = file.getOriginalFilename() == null ? "material.pdf"
+            : java.nio.file.Path.of(file.getOriginalFilename()).getFileName().toString();
+    StudyMaterial m = new StudyMaterial(title.trim(), description, original, stored,
+            storage.pathOf(stored).toString(), file.getSize(), user, subject);
+    return toResponse(materials.saveAndFlush(m));
+} catch (RuntimeException e) {
+    storage.delete(stored); <span class="c">// don't leave an orphan file if the DB write fails</span>
+    throw e;
+}</pre>
+<h4>Only the owner or an admin can delete</h4>
+<div class="file">backend/src/main/java/portal/MaterialService.java: delete()</div>
+<pre>public void delete(Long id, String email) {
+    StudyMaterial m = find(id);
+    AppUser user = users.findByEmail(email).orElseThrow();
+    if (!m.getUploadedBy().getId().equals(user.getId()) &amp;&amp; !"ADMIN".equals(user.getRole())) {
+        throw status(HttpStatus.FORBIDDEN, "You can only delete your own uploads");
+    }
+    materials.delete(m);
+    storage.delete(m.getStoredFilename());
+}</pre>
+<h4>Which URLs are public</h4>
+<p>Registration, login and read-only browsing are public. Everything else (upload, download, delete, My shelf) requires a logged-in session. An anonymous request receives HTTP 401 instead of a login page.</p>
+<div class="file">backend/src/main/java/portal/SecurityConfig.java</div>
+<pre>.authorizeHttpRequests(a -&gt; a
+    .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
+    .requestMatchers(HttpMethod.GET, "/api/subjects", "/api/materials", "/api/materials/{id}").permitAll()
+    .anyRequest().authenticated())
+.exceptionHandling(e -&gt; e.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))</pre>
+<h4>Database queries without writing SQL</h4>
+<p>Spring Data generates the SQL from the method names: <code>findBySubjectId</code> becomes <code>SELECT … WHERE subject_id = ?</code>, with paging and sorting applied from the <code>Pageable</code> argument.</p>
+<div class="file">backend/src/main/java/portal/MaterialRepository.java</div>
+<pre>public interface MaterialRepository extends JpaRepository&lt;StudyMaterial, Long&gt; {
+    Page&lt;StudyMaterial&gt; findBySubjectId(Long subjectId, Pageable pageable);
+    Page&lt;StudyMaterial&gt; findByUploadedById(Long userId, Pageable pageable);
+}</pre>
+<h4>Uploading from React with a progress bar</h4>
+<div class="file">frontend/src/pages/UploadPage.jsx: submit()</div>
+<pre>const body = new FormData();
+Object.entries(f).forEach(([k, v]) =&gt; body.append(k, v));
+body.append("file", file);
+setError("");
+setProgress(0);
+try {
+  const r = await api.post("/materials", body, { onUploadProgress: (p) =&gt; p.total &amp;&amp; setProgress(p.loaded / p.total) });
+  setProgress(1);
+  setDone(true);
+  toast("Uploaded. It's on the shelf now.");
+  setTimeout(() =&gt; nav("/my-uploads", { state: { fresh: r.data?.id } }), 750);
+} catch (err) {
+  setError(errorMessage(err));
+  setProgress(null);
+}</pre>
+<h4>The particle effect</h4>
+<p>The card's rectangle is divided into a 5-pixel grid. Each cell becomes a particle in one of the card's colours. A particle is released when the left-to-right "sweep" reaches its column, then drifts up and to the right while fading out. The real card is clipped away in step with the sweep.</p>
+<div class="file">frontend/src/effects.jsx: disintegrate()</div>
+<pre>for (let y = 0; y &lt; r.height; y += step)
+  for (let x = 0; x &lt; r.width; x += step)
+    ps.push({
+      x: r.left + x, y: r.top + y,
+      vx: 0.6 + Math.random() * 2.2, vy: -(0.4 + Math.random() * 1.6),
+      born: (x / r.width) * sweep + Math.random() * 90,
+      size: 1.5 + Math.random() * 2.5,
+      c: palette[(Math.random() * palette.length) | 0],
+    });
+
+el.animate([{ clipPath: "inset(0 0 0 0)" }, { clipPath: "inset(0 0 0 100%)" }], { duration: sweep + 60, easing: "linear", fill: "forwards" });</pre>
+
+<h3>6.5 API Integration</h3>
+<p>The frontend and backend communicate only through the REST API below. All requests go through one Axios instance (<code>frontend/src/api.js</code>) with base URL <code>/api</code>. In development, Vite forwards <code>/api</code> to <code>http://localhost:8080</code> (<code>vite.config.js</code>), so the browser treats frontend and backend as one origin. Cookies therefore work without CORS configuration. Spring Security sets an <code>XSRF-TOKEN</code> cookie, and Axios automatically copies it into the <code>X-XSRF-TOKEN</code> header on every state-changing request. Errors come back as <code>{"error": "message"}</code>, which the UI shows directly through <code>errorMessage()</code>.</p>
+<div class="file">frontend/src/api.js</div>
+<pre>const axiosClient = axios.create({
+  baseURL: "/api",
+  adapter: import.meta.env.VITE_MOCK ? mockAdapter : undefined,
+});
+
+export const errorMessage = (e) =&gt; e.response?.data?.error ?? "Request failed";</pre>
+<table>
+  <tr><th>Method</th><th>Endpoint</th><th>Access</th><th>Purpose</th><th>Used by</th></tr>
+  <tr><td>POST</td><td><code>/api/auth/register</code></td><td>Public</td><td>Create account (201; 409 if email exists)</td><td>RegisterPage</td></tr>
+  <tr><td>POST</td><td><code>/api/auth/login</code></td><td>Public</td><td>Authenticate and start session</td><td>auth.jsx</td></tr>
+  <tr><td>POST</td><td><code>/api/auth/logout</code></td><td>User</td><td>Invalidate session</td><td>auth.jsx</td></tr>
+  <tr><td>GET</td><td><code>/api/auth/me</code></td><td>User</td><td>Current user (401 if anonymous)</td><td>auth.jsx on load</td></tr>
+  <tr><td>GET</td><td><code>/api/subjects</code></td><td>Public</td><td>All subjects</td><td>Home, Browse, Upload</td></tr>
+  <tr><td>GET</td><td><code>/api/materials?subjectId=&amp;size=</code></td><td>Public</td><td>Newest-first list, optional subject filter</td><td>Home, Browse</td></tr>
+  <tr><td>GET</td><td><code>/api/materials/{id}</code></td><td>Public</td><td>One material's details</td><td>–</td></tr>
+  <tr><td>POST</td><td><code>/api/materials</code> (multipart)</td><td>User</td><td>Upload a PDF with title, description, subject</td><td>UploadPage</td></tr>
+  <tr><td>GET</td><td><code>/api/materials/{id}/download</code></td><td>User</td><td>Stream the PDF as an attachment</td><td>MaterialCard</td></tr>
+  <tr><td>DELETE</td><td><code>/api/materials/{id}</code></td><td>Owner / Admin</td><td>Delete row and file (403 for others)</td><td>MaterialCard</td></tr>
+  <tr><td>GET</td><td><code>/api/users/me/materials</code></td><td>User</td><td>The caller's own uploads</td><td>MyUploadsPage</td></tr>
+</table>
+
+<h3>6.6 User Interface and Animations</h3>
+<p>The interface uses a "library shelf" visual language: warm paper background with faint ruled lines, ink-black outlines with offset shadows, a serif display face (Fraunces) for headings, a monospace face (IBM Plex Mono) for metadata, and one red-pencil accent colour. Each subject has its own colour, used on its shelf tile, its filter tag and the PDF icon of every card in that subject.</p>
+<table>
+  <tr><th>Interaction</th><th>Animation</th><th>Purpose</th></tr>
+  <tr><td>Delete</td><td>Inline confirmation, then particle disintegration and smooth collapse</td><td>Confirms a permanent action clearly</td></tr>
+  <tr><td>Upload</td><td>Drag-and-drop zone with moving dashed border; live progress bar; icon tucks away on success</td><td>Shows the file is being received</td></tr>
+  <tr><td>New upload</td><td>Card drops in with a spring and is briefly highlighted on My shelf</td><td>Shows where the new item landed</td></tr>
+  <tr><td>Lists</td><td>Cards rise in one after another</td><td>Guides the eye down the list</td></tr>
+  <tr><td>Loading</td><td>Placeholder cards with a shimmer</td><td>Avoids layout jumps</td></tr>
+  <tr><td>Errors and notifications</td><td>Form shakes on wrong login; toasts slide in and fade</td><td>Immediate, non-blocking feedback</td></tr>
+</table>
+
+<!-- ======================= 7 ======================= -->
+<h2><span class="no">7</span>Testing</h2>
+<h3>7.1 Approach</h3>
+<p>The system was tested end to end with an automated Playwright script (<code>e2e_test.py</code>). It launches Chromium and drives the real React UI served by Vite, which talks to the running Spring Boot backend connected to a local PostgreSQL 17 database. After each action, the test also queries the database directly through <code>psql</code> and checks the upload directory on disk. That way it confirms what was actually stored, not only what the screen shows. Each run creates a unique user and removes it afterwards.</p>
+<h3>7.2 Test Cases and Results</h3>
+<table>
+  <tr><th>#</th><th>Test case</th><th>Expected result</th><th>Req.</th><th>Status</th></tr>
+  <tr><td>1</td><td>Open home page</td><td>Subject shelves shown equal the rows in <code>subjects</code></td><td>FR3</td><td class="pass">PASS</td></tr>
+  <tr><td>2</td><td>Visit /upload while logged out</td><td>Redirected to /login</td><td>FR11</td><td class="pass">PASS</td></tr>
+  <tr><td>3</td><td>Register a new student</td><td>Row in <code>app_users</code>, role STUDENT, BCrypt hash (<code>$2a$</code>)</td><td>FR1</td><td class="pass">PASS</td></tr>
+  <tr><td>4</td><td>Register the same email again</td><td>HTTP 409 Conflict</td><td>FR1</td><td class="pass">PASS</td></tr>
+  <tr><td>5</td><td>Pick a .txt file for upload</td><td>"That isn't a PDF" error, nothing sent</td><td>FR7</td><td class="pass">PASS</td></tr>
+  <tr><td>6</td><td>Upload a valid PDF</td><td>Row in <code>study_materials</code>; file on disk starts with <code>%PDF-</code>; card on My shelf</td><td>FR6, FR9</td><td class="pass">PASS</td></tr>
+  <tr><td>7</td><td>Filter by subject and search</td><td>URL has <code>?subject=</code>; search narrows to exactly 1 card</td><td>FR4, FR5</td><td class="pass">PASS</td></tr>
+  <tr><td>8</td><td>Download the material</td><td>File received with original name and PDF header</td><td>FR8</td><td class="pass">PASS</td></tr>
+  <tr><td>9</td><td>Delete the material</td><td>Confirmation, particle animation, row and file both removed</td><td>FR10</td><td class="pass">PASS</td></tr>
+  <tr><td>10</td><td>Log out</td><td><code>/api/auth/me</code> returns 401</td><td>FR2</td><td class="pass">PASS</td></tr>
+  <tr><td>11</td><td>Log in with wrong password</td><td>"Invalid email or password" shown</td><td>FR2</td><td class="pass">PASS</td></tr>
+  <tr><td>12</td><td>Open on a 390 px phone viewport</td><td>No horizontal scrolling</td><td>NFR</td><td class="pass">PASS</td></tr>
+  <tr><td>13</td><td>Whole session</td><td>No uncaught JavaScript errors</td><td>NFR</td><td class="pass">PASS</td></tr>
+</table>
+<p><b>Result: 13 of 13 test cases passed.</b> Test environment: Windows 11, JDK 21.0.12, PostgreSQL 17, Node 24, Chromium (Playwright 1.62).</p>
+<h3>7.3 Database Verification</h3>
+<p>Sample data uploaded through the API was then read back directly from PostgreSQL:</p>
+<pre>SELECT m.title, s.name AS subject, u.name AS uploader
+FROM study_materials m
+JOIN subjects s  ON s.id = m.subject_id
+JOIN app_users u ON u.id = m.uploaded_by;</pre>
+<table>
+  <tr><th>Title</th><th>Subject</th><th>Uploader</th></tr>
+  <tr><td>DBMS Unit 3 - Normalization</td><td>Database Management Systems</td><td>Priya Nair</td></tr>
+  <tr><td>Engineering Maths I - Matrices</td><td>Engineering Mathematics I</td><td>Priya Nair</td></tr>
+  <tr><td>Deadlocks - Banker's Algorithm</td><td>Operating Systems</td><td>Priya Nair</td></tr>
+  <tr><td>Linked Lists &amp; Stacks - Handwritten</td><td>Data Structures</td><td>Karthik S</td></tr>
+  <tr><td>Digital Electronics - K-Maps</td><td>Digital Electronics</td><td>Karthik S</td></tr>
+  <tr><td>CPU Scheduling Cheat Sheet</td><td>Operating Systems</td><td>Meera Iyer</td></tr>
+  <tr><td>SQL Joins Practice Set</td><td>Database Management Systems</td><td>Meera Iyer</td></tr>
+</table>
+
+<!-- ======================= 8 ======================= -->
+<h2><span class="no">8</span>Results and Discussion</h2>
+<h3>8.1 Final Output</h3>
+<p>The finished application runs locally with the React frontend at <code>http://localhost:5173</code>, the Spring Boot API at port 8080 and the data in the <code>study_portal</code> PostgreSQL database. The screenshots below were captured automatically from the working system during the end-to-end test run.</p>
+<figure><img src="screenshots/01_home.png"><figcaption>Figure 8.1: Home page with subject shelves and recently added materials</figcaption></figure>
+<figure><img src="screenshots/04_my_shelf.png"><figcaption>Figure 8.2: My shelf, with the newly uploaded material highlighted and a confirmation toast</figcaption></figure>
+<figure><img src="screenshots/08_login_error.png"><figcaption>Figure 8.3: Login error feedback</figcaption></figure>
+<figure class="half"><img src="screenshots/09_mobile.png"><figcaption>Figure 8.4: Home page on a 390 px phone screen</figcaption></figure>
+
+<h3>8.2 Features Achieved</h3>
+<table>
+  <tr><th>Objective (Section 1.3)</th><th>Status</th><th>Evidence</th></tr>
+  <tr><td>Secure registration and login</td><td class="pass">Achieved</td><td>BCrypt hashes in <code>app_users</code>; tests 3, 4, 10, 11</td></tr>
+  <tr><td>Upload PDF with title, description, subject</td><td class="pass">Achieved</td><td>Row and file verified; test 6</td></tr>
+  <tr><td>Browse, filter, search and download</td><td class="pass">Achieved</td><td>Tests 1, 7, 8</td></tr>
+  <tr><td>View and delete own uploads; admin deletes any</td><td class="pass">Achieved</td><td>Ownership check in <code>MaterialService.delete()</code>; test 9</td></tr>
+  <tr><td>Persistent storage in PostgreSQL with integrity rules</td><td class="pass">Achieved</td><td>Constraints in V1 migration; Section 7.3</td></tr>
+  <tr><td>Responsive, animated interface</td><td class="pass">Achieved</td><td>Test 12; Figures 6.5 and 8.4</td></tr>
+  <tr><td>Automated end-to-end tests</td><td class="pass">Achieved</td><td>13 of 13 passing</td></tr>
+</table>
+
+<h3>8.3 Discussion</h3>
+<p>Testing against the real database instead of only the screen proved valuable. It confirmed, for example, that deleting a material removes both the database row and the file on disk, and that passwords are never stored in readable form. Enforcing rules in PostgreSQL (unique emails, valid roles, positive file sizes, foreign keys) as well as in Java means invalid data is rejected even if application code is later changed incorrectly.</p>
+<p>Checking the PDF's first bytes on the server, rather than trusting the file extension or the browser, closes the most obvious abuse of an upload feature. Storing files under random names keeps user-supplied names away from file paths. On the interface side, the animations do real work: the particle effect confirms that a delete was permanent, and the progress bar removes uncertainty during large uploads. They are implemented in plain CSS and one canvas, so they add no extra libraries and are switched off for users who prefer reduced motion.</p>
+
+<h3>8.4 Limitations</h3>
+<ul>
+  <li><b>Search covers only loaded results.</b> Search runs in the browser over the currently loaded list (up to 100 items per subject view). A very large collection would need server-side full-text search.</li>
+  <li><b>Local file storage.</b> PDFs are stored on the server's own disk, which ties the application to a single server and needs separate backups.</li>
+  <li><b>Manual administration.</b> Subjects and the ADMIN role are managed directly in the database with SQL; there is no admin screen yet.</li>
+  <li><b>No email verification or password reset.</b> Any well-formed email address can register.</li>
+  <li><b>No preview.</b> Users must download a PDF to read it.</li>
+  <li><b>Development deployment only.</b> The project runs on a local machine; it has not been deployed to a public server with HTTPS.</li>
+</ul>
+
+<!-- ======================= 9 ======================= -->
+<h2><span class="no">9</span>Conclusion and Future Scope</h2>
+<h3>9.1 Summary</h3>
+<p>The Study Material Portal replaces scattered chat-group sharing with a single, searchable shelf of PDF study material. It was built as a three-tier web application: React and Vite on the frontend, Spring Boot 3.5 on Java 21 for the REST API, and PostgreSQL 17 for storage, with Flyway-managed schema migrations. Security concerns (password storage, sessions, CSRF and file validation) are handled at the framework level and in the database. The paper-themed, animated interface gives clear feedback for every action and works on phones.</p>
+<h3>9.2 Objectives Achieved</h3>
+<p>All seven objectives set out in Section 1.3 were met, as shown in Section 8.2. Students can register, upload subject-tagged PDFs, find material through filters and search, download it and manage their own uploads. The complete flow, from the browser down to the database rows and files on disk, is verified by an automated end-to-end test suite in which all 13 scenarios pass.</p>
+<h3>9.3 Future Enhancements</h3>
+<ul>
+  <li><b>Server-side full-text search</b> using PostgreSQL <code>tsvector</code>, including text extracted from inside the PDFs.</li>
+  <li><b>Ratings, comments and download counts</b> so the most useful notes rise to the top.</li>
+  <li><b>Admin dashboard</b> to manage subjects, promote administrators and moderate reported uploads.</li>
+  <li><b>In-browser PDF preview</b> and thumbnail generation.</li>
+  <li><b>Cloud deployment</b> with object storage (e.g. Amazon S3), Docker containers and HTTPS.</li>
+  <li><b>Email verification and password reset.</b></li>
+</ul>
+
+<h2>References</h2>
+<ol>
+  <li>Spring Boot Reference Documentation, version 3.5. https://docs.spring.io/spring-boot/</li>
+  <li>Spring Security Reference: CSRF and Session Management. https://docs.spring.io/spring-security/reference/</li>
+  <li>PostgreSQL 17 Documentation. https://www.postgresql.org/docs/17/</li>
+  <li>Flyway Documentation. https://documentation.red-gate.com/flyway</li>
+  <li>React Documentation. https://react.dev/</li>
+  <li>React Router Documentation. https://reactrouter.com/</li>
+  <li>Vite Guide. https://vite.dev/guide/</li>
+  <li>Axios Documentation. https://axios-http.com/docs/intro</li>
+  <li>MDN Web Docs: Canvas API and CSS Animations. https://developer.mozilla.org/</li>
+  <li>Playwright for Python. https://playwright.dev/python/</li>
+  <li>OWASP File Upload Cheat Sheet. https://cheatsheetseries.owasp.org/cheatsheets/File_Upload_Cheat_Sheet.html</li>
+</ol>
+</body>
+</html>

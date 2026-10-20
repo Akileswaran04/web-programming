@@ -1,0 +1,10 @@
+node_modules/
+dist/
+target/
+uploads/
+.env
+.idea/
+*.iml
+submission/
+docs/_report_build.html
+__pycache__/

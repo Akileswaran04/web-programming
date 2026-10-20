@@ -1,0 +1,13 @@
+PASS	Home page loads with subjects from DB	
+PASS	Protected route redirects anonymous user to login	
+PASS	Register creates a row in app_users with a bcrypt hash	
+PASS	Duplicate registration is rejected (409)	
+PASS	Non-PDF upload is rejected in the UI	
+PASS	Upload PDF stores metadata in DB and file on disk	
+PASS	Browse: subject filter and search narrow the list	
+PASS	Download returns the original PDF	
+PASS	Delete: confirm, particle animation, DB row and file removed	
+PASS	Logout ends the session	
+PASS	Wrong password shows an error	
+PASS	Mobile layout renders without horizontal scroll	
+PASS	No uncaught JavaScript errors	
